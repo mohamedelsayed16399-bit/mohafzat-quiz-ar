@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تحدي المحافظات المصرية</title>
+<meta name="description" content="لعبة أسئلة عن محافظات مصر وعواصمها. 10 أسئلة، تايمر، وشارك نتيجتك.">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#0f1a24;color:#f2f5f7;min-height:100vh;display:flex;justify-content:center}
+.app{width:100%;max-width:520px;padding:18px}
+h1{font-size:24px;text-align:center;margin:8px 0 4px;color:#f5c542}
+.sub{text-align:center;color:#8fa3b3;font-size:13px;margin-bottom:16px}
+.card{background:#172635;border:1px solid #27425a;border-radius:16px;padding:18px;margin-bottom:12px}
+.q{font-size:20px;text-align:center;margin:10px 0 16px;line-height:1.6}
+.opts{display:grid;gap:10px}
+.opts button,.btn{font-family:inherit;font-size:17px;padding:13px;border-radius:12px;border:1px solid #2f5170;background:#1d3348;color:#fff;cursor:pointer}
+.opts button:hover:not(:disabled){border-color:#f5c542}
+.opts button.ok{background:#1f7a46;border-color:#2fbf6d}.opts button.no{background:#8a2b2b;border-color:#d34}
+.btn{background:#f5c542;color:#1a1a1a;font-weight:bold;width:100%}
+.bar{height:8px;background:#0b141c;border-radius:6px;overflow:hidden;margin-bottom:6px}.bar i{display:block;height:100%;width:100%;background:#f5c542;transition:width .2s linear}
+.top{display:flex;justify-content:space-between;font-size:14px;color:#8fa3b3}
+.big{font-size:54px;text-align:center;font-weight:bold;color:#f5c542}
+.hide{display:none}.mode{display:flex;gap:8px;margin-bottom:12px}.mode button{flex:1;font-size:14px;padding:9px}
+.mode button.on{border-color:#f5c542;color:#f5c542}
+</style></head><body><div class="app">
+<h1>🇪🇬 تحدي المحافظات</h1><div class="sub">عواصم ومحافظات مصر، 10 أسئلة، 12 ثانية لكل سؤال</div>
+<div id="start" class="card">
+<div class="mode" id="mode"><div style="width:100%;font-size:13px;color:#8fa3b3;margin-bottom:4px">اختار نوع الأسئلة</div></div>
+<div class="mode"><button class="btn" style="background:#1d3348;color:#fff" data-m="cap">عاصمة المحافظة</button><button class="btn" style="background:#1d3348;color:#fff" data-m="gov">المدينة تابعة لأنهي محافظة</button></div>
+<div id="best" class="sub"></div>
+<button class="btn" id="go">يلا نبدأ</button></div>
+<div id="play" class="card hide"><div class="top"><span id="n"></span><span id="sc"></span></div><div class="bar"><i id="bar"></i></div>
+<div class="q" id="q"></div><div class="opts" id="opts"></div><button class="btn hide" id="next" style="margin-top:12px">اللي بعده</button></div>
+<div id="end" class="card hide"><div class="big" id="fin"></div><div class="q" id="msg"></div><button class="btn" id="share">انسخ نتيجتك وشاركها</button><button class="btn" id="again" style="margin-top:8px;background:#1d3348;color:#fff">العب تاني</button></div>
+</div>
+<script>
+const G=[["القاهرة","القاهرة"],["الجيزة","الجيزة"],["الإسكندرية","الإسكندرية"],["القليوبية","بنها"],["الشرقية","الزقازيق"],["الدقهلية","المنصورة"],["البحيرة","دمنهور"],["الغربية","طنطا"],["المنوفية","شبين الكوم"],["كفر الشيخ","كفر الشيخ"],["دمياط","دمياط"],["بورسعيد","بورسعيد"],["الإسماعيلية","الإسماعيلية"],["السويس","السويس"],["شمال سيناء","العريش"],["جنوب سيناء","الطور"],["الفيوم","الفيوم"],["بني سويف","بني سويف"],["المنيا","المنيا"],["أسيوط","أسيوط"],["سوهاج","سوهاج"],["قنا","قنا"],["الأقصر","الأقصر"],["أسوان","أسوان"],["البحر الأحمر","الغردقة"],["الوادي الجديد","الخارجة"],["مطروح","مرسى مطروح"]];
+const C=[["المحلة الكبرى","الغربية"],["كوم أمبو","أسوان"],["إدفو","أسوان"],["دسوق","كفر الشيخ"],["رشيد","البحيرة"],["كفر الدوار","البحيرة"],["العاشر من رمضان","الشرقية"],["بلبيس","الشرقية"],["ميت غمر","الدقهلية"],["طلخا","الدقهلية"],["السادات","المنوفية"],["أشمون","المنوفية"],["الخانكة","القليوبية"],["شبرا الخيمة","القليوبية"],["6 أكتوبر","الجيزة"],["أبو النمرس","الجيزة"],["ملوي","المنيا"],["أبوتيج","أسيوط"],["جرجا","سوهاج"],["نجع حمادي","قنا"],["إسنا","الأقصر"],["شرم الشيخ","جنوب سيناء"],["دهب","جنوب سيناء"],["رأس غارب","البحر الأحمر"],["مرسى علم","البحر الأحمر"],["سيوة","مطروح"],["العلمين","مطروح"],["الواحات البحرية","الجيزة"],["رفح","شمال سيناء"],["فارسكور","دمياط"],["رأس البر","دمياط"],["القنطرة","الإسماعيلية"],["الطود","الأقصر"],["إطسا","الفيوم"],["الواسطي","بني سويف"],["بيلا","كفر الشيخ"],["بسيون","الغربية"]];
+const $=id=>document.getElementById(id);let mode="cap",qs=[],i=0,score=0,t=null,left=12,answered=false;
+function shuf(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+function build(){
+ if(mode==="cap"){return shuf(G).slice(0,10).map(g=>{const r=Math.random()<.5;
+  return r?{q:"إيه عاصمة محافظة "+g[0]+"؟",a:g[1],pool:G.map(x=>x[1])}:{q:"مدينة "+g[1]+" عاصمة أنهي محافظة؟",a:g[0],pool:G.map(x=>x[0])}});}
+ return shuf(C).slice(0,10).map(c=>({q:"مدينة "+c[0]+" تابعة لأنهي محافظة؟",a:c[1],pool:G.map(x=>x[0])}));
+}
+function show(){answered=false;const o=qs[i];$("n").textContent="سؤال "+(i+1)+" من 10";$("sc").textContent="النتيجة: "+score;$("q").textContent=o.q;
+ const w=shuf(o.pool.filter(x=>x!==o.a)).slice(0,3);const ch=shuf([o.a,...w]);$("opts").innerHTML="";
+ ch.forEach(c=>{const b=document.createElement("button");b.textContent=c;b.onclick=()=>pick(b,c);$("opts").appendChild(b)});
+ $("next").classList.add("hide");left=12;tick();clearInterval(t);t=setInterval(()=>{left-=.2;tick();if(left<=0){clearInterval(t);pick(null,null)}},200)}
+function tick(){$("bar").style.width=Math.max(0,left/12*100)+"%"}
+function pick(b,c){if(answered)return;answered=true;clearInterval(t);const o=qs[i];
+ [...$("opts").children].forEach(x=>{x.disabled=true;if(x.textContent===o.a)x.classList.add("ok")});
+ if(c===o.a){score+=1;if(left>8)score+=0}else if(b)b.classList.add("no");
+ $("sc").textContent="النتيجة: "+score;$("next").textContent=i===9?"شوف نتيجتك":"اللي بعده";$("next").classList.remove("hide")}
+function finish(){$("play").classList.add("hide");$("end").classList.remove("hide");$("fin").textContent=score+" / 10";
+ const m=score===10?"أسطورة! عارف مصر زي كف إيدك 🔥":score>=8?"ممتاز! شبه جغرافي 👏":score>=5?"كويس، بس محتاج مراجعة 😅":"لازم ترجع تذاكر الجغرافيا 😂";$("msg").textContent=m;
+ const k="mq_best_"+mode;const b=+localStorage.getItem(k)||0;if(score>b)localStorage.setItem(k,score)}
+$("next").onclick=()=>{if(i===9)finish();else{i++;show()}};
+document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll("[data-m]").forEach(x=>x.style.borderColor=x===b?"#f5c542":"");bestShow()});
+function bestShow(){const b=localStorage.getItem("mq_best_"+mode);$("best").textContent=b?"أعلى نتيجة ليك: "+b+" / 10":""}
+$("go").onclick=()=>{qs=build();i=0;score=0;$("start").classList.add("hide");$("end").classList.add("hide");$("play").classList.remove("hide");show()};
+$("again").onclick=()=>{$("end").classList.add("hide");$("start").classList.remove("hide");bestShow()};
+$("share").onclick=()=>{const tx="جبت "+score+" من 10 في تحدي المحافظات المصرية 🇪🇬 تقدر تجيب أكتر؟ "+location.href.split("#")[0];
+ if(navigator.share){navigator.share({text:tx}).catch(()=>{})}else if(navigator.clipboard){navigator.clipboard.writeText(tx);$("share").textContent="اتنسخت ✅"}};
+document.querySelector('[data-m="cap"]').style.borderColor="#f5c542";bestShow();
+</script></body></html>
